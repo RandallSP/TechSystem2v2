@@ -5,30 +5,28 @@ using System.Web.UI.WebControls;
 namespace TechSystem2
 {
 
-// Pagina para administrar los usuarios del sistema
+// Pagina para administrar las reparaciones del sistema
 // Esta pagina es la capa de presentacion: solo muestra datos
-// y llama a la capa de negocio (UsuarioNegocio)
-public partial class Usuarios : System.Web.UI.Page
+// y llama a la capa de negocio (ReparacionNegocio)
+public partial class Reparaciones : System.Web.UI.Page
 {
     // los controles de la pagina
     protected TextBox txtBuscar;
     protected Button btnBuscar;
     protected Button btnLimpiar;
     protected TextBox txtID;
-    protected TextBox txtNombre;
-    protected TextBox txtCorreo;
-    protected TextBox txtTelefono;
-    protected TextBox txtClave;
+    protected DropDownList ddlEquipo;
+    protected DropDownList ddlEstado;
     protected Button btnGuardar;
     protected Button btnNuevo;
     protected Label lblMensaje;
     protected Panel pnlConfirmar;
     protected Button btnSi;
     protected Button btnNo;
-    protected GridView gvUsuarios;
+    protected GridView gvReparaciones;
 
     // capa de negocio
-    UsuarioNegocio negocio = new UsuarioNegocio();
+    ReparacionNegocio negocio = new ReparacionNegocio();
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -41,24 +39,41 @@ public partial class Usuarios : System.Web.UI.Page
 
         if (!IsPostBack)
         {
+            CargarEquipos();
             CargarTabla();
         }
     }
 
-    // Carga todos los usuarios en el grid
+    // llena el combo con los equipos
+    public void CargarEquipos()
+    {
+        DataTable dt = negocio.ListarEquiposParaCombo();
+        if (dt == null)
+        {
+            lblMensaje.Text = "Ocurrio un error al cargar los equipos.";
+            return;
+        }
+        ddlEquipo.DataSource = dt;
+        ddlEquipo.DataTextField = "NombreEquipo";
+        ddlEquipo.DataValueField = "EquipoID";
+        ddlEquipo.DataBind();
+        ddlEquipo.Items.Insert(0, new ListItem("-- Seleccione --", ""));
+    }
+
+    // Carga todas las reparaciones en el grid
     public void CargarTabla()
     {
-        DataTable dt = negocio.ListarUsuarios();
+        DataTable dt = negocio.ListarReparaciones();
         if (dt == null)
         {
             lblMensaje.Text = "Ocurrio un error al cargar los datos.";
             return;
         }
-        gvUsuarios.DataSource = dt;
-        gvUsuarios.DataBind();
+        gvReparaciones.DataSource = dt;
+        gvReparaciones.DataBind();
     }
 
-    // Buscar usuarios
+    // Buscar reparaciones
     protected void btnBuscar_Click(object sender, EventArgs e)
     {
         string texto = txtBuscar.Text.Trim();
@@ -69,14 +84,14 @@ public partial class Usuarios : System.Web.UI.Page
             return;
         }
 
-        DataTable dt = negocio.BuscarUsuarios(texto);
+        DataTable dt = negocio.BuscarReparaciones(texto);
         if (dt == null)
         {
             lblMensaje.Text = "Ocurrio un error al buscar.";
             return;
         }
-        gvUsuarios.DataSource = dt;
-        gvUsuarios.DataBind();
+        gvReparaciones.DataSource = dt;
+        gvReparaciones.DataBind();
         lblMensaje.Text = "Se encontraron " + dt.Rows.Count + " resultados";
     }
 
@@ -92,7 +107,7 @@ public partial class Usuarios : System.Web.UI.Page
     protected void btnGuardar_Click(object sender, EventArgs e)
     {
         string id = txtID.Text;
-        string mensaje = negocio.GuardarUsuario(id, txtNombre.Text, txtCorreo.Text, txtTelefono.Text, txtClave.Text);
+        string mensaje = negocio.GuardarReparacion(id, ddlEquipo.SelectedValue, ddlEstado.SelectedValue);
 
         if (mensaje == "")
         {
@@ -100,11 +115,11 @@ public partial class Usuarios : System.Web.UI.Page
             CargarTabla();
             if (id == "")
             {
-                lblMensaje.Text = "Usuario guardado!";
+                lblMensaje.Text = "Reparacion guardada!";
             }
             else
             {
-                lblMensaje.Text = "Usuario actualizado!";
+                lblMensaje.Text = "Reparacion actualizada!";
             }
         }
         else
@@ -121,29 +136,26 @@ public partial class Usuarios : System.Web.UI.Page
     }
 
     // Eventos del grid (Seleccionar y Eliminar)
-    protected void gvUsuarios_RowCommand(object sender, GridViewCommandEventArgs e)
+    protected void gvReparaciones_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         int id = Convert.ToInt32(e.CommandArgument);
 
         if (e.CommandName == "Seleccionar")
         {
-            DataTable dt = negocio.ObtenerUsuario(id);
+            DataTable dt = negocio.ObtenerReparacion(id);
             if (dt == null)
             {
-                lblMensaje.Text = "Ocurrio un error al cargar el usuario.";
+                lblMensaje.Text = "Ocurrio un error al cargar la reparacion.";
                 return;
             }
 
             if (dt.Rows.Count > 0)
             {
                 DataRow f = dt.Rows[0];
-                txtID.Text = f["UsuarioID"].ToString();
-                txtNombre.Text = f["Nombre"].ToString();
-                txtCorreo.Text = f["CorreoElectronico"].ToString();
-                txtTelefono.Text = f["Telefono"].ToString();
-                // la clave no se trae ni se muestra: si la deja vacia no se cambia
-                txtClave.Text = "";
-                lblMensaje.Text = "Usuario cargado. Modifique y presione Guardar.";
+                txtID.Text = f["ReparacionID"].ToString();
+                ddlEquipo.SelectedValue = f["EquipoID"].ToString();
+                ddlEstado.SelectedValue = f["Estado"].ToString();
+                lblMensaje.Text = "Reparacion cargada. Modifique y presione Guardar.";
             }
         }
         else if (e.CommandName == "Eliminar")
@@ -155,7 +167,7 @@ public partial class Usuarios : System.Web.UI.Page
     }
 
     // Estilos de botones del grid
-    protected void gvUsuarios_RowDataBound(object sender, GridViewRowEventArgs e)
+    protected void gvReparaciones_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
@@ -170,11 +182,11 @@ public partial class Usuarios : System.Web.UI.Page
     protected void btnSi_Click(object sender, EventArgs e)
     {
         int id = Convert.ToInt32(txtID.Text);
-        string mensaje = negocio.EliminarUsuario(id);
+        string mensaje = negocio.EliminarReparacion(id);
 
         if (mensaje == "")
         {
-            lblMensaje.Text = "Usuario eliminado!";
+            lblMensaje.Text = "Reparacion eliminada!";
             LimpiarFormulario();
             CargarTabla();
         }
@@ -196,10 +208,8 @@ public partial class Usuarios : System.Web.UI.Page
     public void LimpiarFormulario()
     {
         txtID.Text = "";
-        txtNombre.Text = "";
-        txtCorreo.Text = "";
-        txtTelefono.Text = "";
-        txtClave.Text = "";
+        if (ddlEquipo.Items.Count > 0) ddlEquipo.SelectedIndex = 0;
+        if (ddlEstado.Items.Count > 0) ddlEstado.SelectedIndex = 0;
     }
 
     // Boton Salir: borra la sesion y vuelve al login

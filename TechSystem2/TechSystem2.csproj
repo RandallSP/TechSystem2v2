@@ -78,6 +78,9 @@
     <Content Include="Usuarios.aspx" />
     <Content Include="Equipos.aspx" />
     <Content Include="Tecnicos.aspx" />
+    <Content Include="Reparaciones.aspx" />
+    <Content Include="Detalles.aspx" />
+    <Content Include="Asignaciones.aspx" />
     <Content Include="Style.css" />
   </ItemGroup>
   <ItemGroup>
@@ -98,9 +101,31 @@
       <DependentUpon>Tecnicos.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Reparaciones.aspx.cs">
+      <DependentUpon>Reparaciones.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Detalles.aspx.cs">
+      <DependentUpon>Detalles.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Asignaciones.aspx.cs">
+      <DependentUpon>Asignaciones.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="UsuarioDatos.cs" />
+    <Compile Include="AsignacionDatos.cs" />
+    <Compile Include="AsignacionNegocio.cs" />
+    <Compile Include="DetalleDatos.cs" />
+    <Compile Include="DetalleNegocio.cs" />
+    <Compile Include="ReparacionDatos.cs" />
+    <Compile Include="ReparacionNegocio.cs" />
     <Compile Include="EquipoDatos.cs" />
     <Compile Include="TecnicoDatos.cs" />
+    <Compile Include="UsuarioNegocio.cs" />
+    <Compile Include="EquipoNegocio.cs" />
+    <Compile Include="TecnicoNegocio.cs" />
+    <Compile Include="Seguridad.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

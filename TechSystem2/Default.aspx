@@ -48,6 +48,9 @@
                     <a href="Usuarios.aspx">Usuarios</a>
                     <a href="Equipos.aspx">Equipos</a>
                     <a href="Tecnicos.aspx">Tecnicos</a>
+                    <a href="Reparaciones.aspx">Reparaciones</a>
+                    <a href="Detalles.aspx">Detalles</a>
+                    <a href="Asignaciones.aspx">Asignaciones</a>
                     <asp:Button ID="btnSalir" runat="server" Text="Salir" CssClass="btn-limpiar" OnClick="btnSalir_Click" style="margin-left: 10px;" />
                 </div>
             </div>

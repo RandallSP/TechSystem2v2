@@ -1,11 +1,11 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Tecnicos.aspx.cs" Inherits="TechSystem2.Tecnicos" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Detalles.aspx.cs" Inherits="TechSystem2.Detalles" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tecnicos - TechSystem</title>
+    <title>Detalles de Reparacion - TechSystem</title>
     <link rel="stylesheet" type="text/css" href="Style.css" />
 </head>
 <body>
@@ -28,27 +28,36 @@
         <div class="contenedor">
 
             <div class="tarjeta">
-                <h2>Buscar Tecnicos</h2>
+                <h2>Buscar Detalles</h2>
                 <div class="campo-busqueda">
-                    <asp:TextBox ID="txtBuscar" runat="server" placeholder="Buscar por nombre o especialidad..."></asp:TextBox>
+                    <asp:TextBox ID="txtBuscar" runat="server" placeholder="Buscar por descripcion, estado, equipo o usuario..."></asp:TextBox>
                     <asp:Button ID="btnBuscar" runat="server" Text="Buscar" CssClass="btn-buscar" OnClick="btnBuscar_Click" />
                     <asp:Button ID="btnLimpiar" runat="server" Text="Limpiar" CssClass="btn-limpiar" OnClick="btnLimpiar_Click" />
                 </div>
             </div>
 
             <div class="tarjeta">
-                <h2>Datos del Tecnico</h2>
+                <h2>Datos del Detalle</h2>
 
                 <asp:TextBox ID="txtID" runat="server" Visible="false"></asp:TextBox>
 
                 <div class="form-columnas">
                     <div>
-                        <label>Nombre:</label>
-                        <asp:TextBox ID="txtNombre" runat="server" placeholder="Nombre del tecnico"></asp:TextBox>
+                        <label>Reparacion:</label>
+                        <asp:DropDownList ID="ddlReparacion" runat="server"></asp:DropDownList>
+                    </div>
+                    <div class="full-width">
+                        <label>Descripcion:</label>
+                        <asp:TextBox ID="txtDescripcion" runat="server" TextMode="Multiline" Rows="3"
+                            placeholder="Describa el trabajo realizado"></asp:TextBox>
                     </div>
                     <div>
-                        <label>Especialidad:</label>
-                        <asp:TextBox ID="txtEspecialidad" runat="server" placeholder="Hardware, Software, Redes..."></asp:TextBox>
+                        <label>Fecha Inicio:</label>
+                        <asp:TextBox ID="txtFechaInicio" runat="server" placeholder="ej: 2026-07-16 10:15 (opcional)"></asp:TextBox>
+                    </div>
+                    <div>
+                        <label>Fecha Fin:</label>
+                        <asp:TextBox ID="txtFechaFin" runat="server" placeholder="ej: 2026-07-16 12:00 (opcional)"></asp:TextBox>
                     </div>
                 </div>
 
@@ -59,7 +68,7 @@
                 </div>
 
                 <asp:Panel ID="pnlConfirmar" runat="server" CssClass="panel-confirmacion" Visible="false">
-                    <p>Seguro que desea eliminar este tecnico? No se puede deshacer.</p>
+                    <p>Seguro que desea eliminar este detalle? No se puede deshacer.</p>
                     <div class="botones" style="justify-content: center;">
                         <asp:Button ID="btnSi" runat="server" Text="Si, Eliminar" CssClass="btn-eliminar" OnClick="btnSi_Click" />
                         <asp:Button ID="btnNo" runat="server" Text="No, Cancelar" CssClass="btn-limpiar" OnClick="btnNo_Click" />
@@ -68,21 +77,26 @@
             </div>
 
             <div class="tarjeta">
-                <h2>Lista de Tecnicos</h2>
+                <h2>Lista de Detalles</h2>
                 <div class="grid-container">
-                    <asp:GridView ID="gvTecnicos" runat="server" AutoGenerateColumns="False"
-                        CssClass="gridview" DataKeyNames="TecnicoID"
-                        OnRowCommand="gvTecnicos_RowCommand" OnRowDataBound="gvTecnicos_RowDataBound">
+                    <asp:GridView ID="gvDetalles" runat="server" AutoGenerateColumns="False"
+                        CssClass="gridview" DataKeyNames="DetalleID"
+                        OnRowCommand="gvDetalles_RowCommand" OnRowDataBound="gvDetalles_RowDataBound">
                         <Columns>
-                            <asp:BoundField DataField="TecnicoID" HeaderText="ID" />
-                            <asp:BoundField DataField="Nombre" HeaderText="Nombre" />
-                            <asp:BoundField DataField="Especialidad" HeaderText="Especialidad" />
+                            <asp:BoundField DataField="DetalleID" HeaderText="ID" />
+                            <asp:BoundField DataField="ReparacionID" HeaderText="Rep #" />
+                            <asp:BoundField DataField="Descripcion" HeaderText="Descripcion" />
+                            <asp:BoundField DataField="FechaInicio" HeaderText="Inicio" DataFormatString="{0:dd/MM/yyyy HH:mm}" />
+                            <asp:BoundField DataField="FechaFin" HeaderText="Fin" DataFormatString="{0:dd/MM/yyyy HH:mm}" />
+                            <asp:BoundField DataField="Estado" HeaderText="Estado" />
                             <asp:TemplateField HeaderText="Acciones">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lnkSeleccionar" runat="server" CommandName="Seleccionar" 
-                                        CommandArgument='<%# Eval("TecnicoID") %>' Text="Seleccionar" />
-                                    <asp:LinkButton ID="lnkEliminar" runat="server" CommandName="Eliminar" 
-                                        CommandArgument='<%# Eval("TecnicoID") %>' Text="Eliminar" />
+                                    <div class="acciones">
+                                        <asp:LinkButton ID="lnkSeleccionar" runat="server" CommandName="Seleccionar" 
+                                            CommandArgument='<%# Eval("DetalleID") %>' Text="Seleccionar" />
+                                        <asp:LinkButton ID="lnkEliminar" runat="server" CommandName="Eliminar" 
+                                            CommandArgument='<%# Eval("DetalleID") %>' Text="Eliminar" />
+                                    </div>
                                 </ItemTemplate>
                             </asp:TemplateField>
                         </Columns>

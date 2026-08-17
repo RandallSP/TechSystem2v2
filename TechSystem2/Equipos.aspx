@@ -18,7 +18,10 @@
                 <a href="Usuarios.aspx">Usuarios</a>
                 <a href="Equipos.aspx">Equipos</a>
                 <a href="Tecnicos.aspx">Tecnicos</a>
-                <a href="Default.aspx" style="color: #f85149;">Salir</a>
+                <a href="Reparaciones.aspx">Reparaciones</a>
+                <a href="Detalles.aspx">Detalles</a>
+                <a href="Asignaciones.aspx">Asignaciones</a>
+                <asp:LinkButton ID="btnSalir" runat="server" Text="Salir" OnClick="btnSalir_Click" style="color: #f85149;" />
             </div>
         </div>
 

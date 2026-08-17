@@ -1,11 +1,13 @@
 using System;
-using System.Data.SqlClient;
+using System.Data;
 using System.Web.UI.WebControls;
 
 namespace TechSystem2
 {
 
 // Pagina principal del sistema, aqui tambien esta el login
+// Esta pagina es la capa de presentacion: solo muestra datos
+// y llama a la capa de negocio (UsuarioNegocio)
 public partial class Default : System.Web.UI.Page
 {
     // Los controles que usamos en la pagina
@@ -41,7 +43,7 @@ public partial class Default : System.Web.UI.Page
     protected void btnEntrar_Click(object sender, EventArgs e)
     {
         // agarramos lo que escribio
-        string correo = txtCorreo.Text;
+        string correo = txtCorreo.Text.Trim();
         string clave = txtClave.Text;
 
         // validamos que no este vacio (validacion basica)
@@ -56,46 +58,29 @@ public partial class Default : System.Web.UI.Page
             return;
         }
 
-        try
+        // mandamos los datos a la capa de negocio (ahi se encripta la clave)
+        UsuarioNegocio negocio = new UsuarioNegocio();
+        DataTable dt = negocio.IniciarSesion(correo, clave);
+
+        if (dt == null)
         {
-            // nos conectamos a la base de datos
-            SqlConnection con = new SqlConnection();
-            con.ConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConexionDB"].ConnectionString;
-            con.Open();
-
-            // buscamos el usuario con ese correo y clave
-            // concatenamos directo el sql (no usamos parametros porque aun no los entiendo bien)
-            string sql = "SELECT * FROM Usuarios WHERE CorreoElectronico = '" + correo + "' AND Clave = '" + clave + "'";
-            SqlCommand cmd = new SqlCommand(sql, con);
-
-            // leemos lo que nos devuelve la consulta
-            SqlDataReader dr = cmd.ExecuteReader();
-
-            if (dr.Read())
-            {
-                // el usuario si existe, guardamos sus datos
-                Session["id"] = dr["UsuarioID"].ToString();
-                Session["nombre"] = dr["Nombre"].ToString();
-
-                dr.Close();
-                con.Close();
-
-                // recargamos la pagina para que muestre el sistema
-                Response.Redirect("Default.aspx");
-            }
-            else
-            {
-                // no se encontro, mostramos mensaje de error
-                lblMensaje.Text = "Correo o clave incorrectos";
-
-                dr.Close();
-                con.Close();
-            }
+            // hubo un problema con la base de datos
+            lblMensaje.Text = "Ocurrio un error al conectar con la base de datos. Intente de nuevo.";
         }
-        catch (Exception ex)
+        else if (dt.Rows.Count > 0)
         {
-            // cualquier error lo mostramos
-            lblMensaje.Text = "Error: " + ex.Message;
+            // el usuario existe, guardamos sus datos en la sesion
+            DataRow fila = dt.Rows[0];
+            Session["id"] = fila["UsuarioID"].ToString();
+            Session["nombre"] = fila["Nombre"].ToString();
+
+            // recargamos la pagina para que muestre el sistema
+            Response.Redirect("Default.aspx");
+        }
+        else
+        {
+            // no se encontro, mostramos mensaje de error
+            lblMensaje.Text = "Correo o clave incorrectos";
         }
     }
 

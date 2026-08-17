@@ -5,8 +5,12 @@ using System.Web.UI.WebControls;
 namespace TechSystem2
 {
 
+// Pagina para administrar los tecnicos del sistema
+// Esta pagina es la capa de presentacion: solo muestra datos
+// y llama a la capa de negocio (TecnicoNegocio)
 public partial class Tecnicos : System.Web.UI.Page
 {
+    // los controles de la pagina
     protected TextBox txtBuscar;
     protected Button btnBuscar;
     protected Button btnLimpiar;
@@ -21,11 +25,12 @@ public partial class Tecnicos : System.Web.UI.Page
     protected Button btnNo;
     protected GridView gvTecnicos;
 
-    // capa de datos de tecnicos
-    TecnicoDatos datos = new TecnicoDatos();
+    // capa de negocio
+    TecnicoNegocio negocio = new TecnicoNegocio();
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        // si no ha iniciado sesion lo mandamos al login
         if (Session["nombre"] == null)
         {
             Response.Redirect("Default.aspx");
@@ -38,13 +43,20 @@ public partial class Tecnicos : System.Web.UI.Page
         }
     }
 
+    // Carga todos los tecnicos en el grid
     public void CargarTabla()
     {
-        DataTable dt = datos.ListarTodos();
+        DataTable dt = negocio.ListarTecnicos();
+        if (dt == null)
+        {
+            lblMensaje.Text = "Ocurrio un error al cargar los datos.";
+            return;
+        }
         gvTecnicos.DataSource = dt;
         gvTecnicos.DataBind();
     }
 
+    // Buscar tecnicos
     protected void btnBuscar_Click(object sender, EventArgs e)
     {
         string texto = txtBuscar.Text.Trim();
@@ -55,12 +67,18 @@ public partial class Tecnicos : System.Web.UI.Page
             return;
         }
 
-        DataTable dt = datos.Buscar(texto);
+        DataTable dt = negocio.BuscarTecnicos(texto);
+        if (dt == null)
+        {
+            lblMensaje.Text = "Ocurrio un error al buscar.";
+            return;
+        }
         gvTecnicos.DataSource = dt;
         gvTecnicos.DataBind();
         lblMensaje.Text = "Se encontraron " + dt.Rows.Count + " resultados";
     }
 
+    // Limpiar busqueda
     protected void btnLimpiar_Click(object sender, EventArgs e)
     {
         txtBuscar.Text = "";
@@ -68,51 +86,52 @@ public partial class Tecnicos : System.Web.UI.Page
         lblMensaje.Text = "";
     }
 
+    // Guardar o actualizar (las validaciones estan en la capa de negocio)
     protected void btnGuardar_Click(object sender, EventArgs e)
     {
-        if (txtNombre.Text.Trim() == "")
-        {
-            lblMensaje.Text = "Escriba el nombre del tecnico";
-            return;
-        }
-        if (txtEspecialidad.Text.Trim() == "")
-        {
-            lblMensaje.Text = "Escriba la especialidad";
-            return;
-        }
+        string id = txtID.Text;
+        string mensaje = negocio.GuardarTecnico(id, txtNombre.Text, txtEspecialidad.Text);
 
-        string nombre = txtNombre.Text.Trim();
-        string especialidad = txtEspecialidad.Text.Trim();
-
-        if (txtID.Text == "")
+        if (mensaje == "")
         {
-            datos.Insertar(nombre, especialidad);
-            lblMensaje.Text = "Tecnico guardado!";
+            LimpiarFormulario();
+            CargarTabla();
+            if (id == "")
+            {
+                lblMensaje.Text = "Tecnico guardado!";
+            }
+            else
+            {
+                lblMensaje.Text = "Tecnico actualizado!";
+            }
         }
         else
         {
-            int id = Convert.ToInt32(txtID.Text);
-            datos.Actualizar(id, nombre, especialidad);
-            lblMensaje.Text = "Tecnico actualizado!";
+            lblMensaje.Text = mensaje;
         }
-
-        LimpiarFormulario();
-        CargarTabla();
     }
 
+    // Boton nuevo
     protected void btnNuevo_Click(object sender, EventArgs e)
     {
         LimpiarFormulario();
         lblMensaje.Text = "";
     }
 
+    // Eventos del grid (Seleccionar y Eliminar)
     protected void gvTecnicos_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         int id = Convert.ToInt32(e.CommandArgument);
 
         if (e.CommandName == "Seleccionar")
         {
-            DataTable dt = datos.ObtenerPorId(id);
+            DataTable dt = negocio.ObtenerTecnico(id);
+            if (dt == null)
+            {
+                lblMensaje.Text = "Ocurrio un error al cargar el tecnico.";
+                return;
+            }
+
             if (dt.Rows.Count > 0)
             {
                 DataRow f = dt.Rows[0];
@@ -130,6 +149,7 @@ public partial class Tecnicos : System.Web.UI.Page
         }
     }
 
+    // Estilos de botones del grid
     protected void gvTecnicos_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
@@ -141,28 +161,46 @@ public partial class Tecnicos : System.Web.UI.Page
         }
     }
 
+    // Confirmar eliminar
     protected void btnSi_Click(object sender, EventArgs e)
     {
         int id = Convert.ToInt32(txtID.Text);
-        datos.Eliminar(id);
+        string mensaje = negocio.EliminarTecnico(id);
 
-        lblMensaje.Text = "Tecnico eliminado!";
+        if (mensaje == "")
+        {
+            lblMensaje.Text = "Tecnico eliminado!";
+            LimpiarFormulario();
+            CargarTabla();
+        }
+        else
+        {
+            lblMensaje.Text = mensaje;
+        }
         pnlConfirmar.Visible = false;
-        LimpiarFormulario();
-        CargarTabla();
     }
 
+    // Cancelar eliminar
     protected void btnNo_Click(object sender, EventArgs e)
     {
         pnlConfirmar.Visible = false;
         lblMensaje.Text = "";
     }
 
+    // Deja los campos en blanco
     public void LimpiarFormulario()
     {
         txtID.Text = "";
         txtNombre.Text = "";
         txtEspecialidad.Text = "";
+    }
+
+    // Boton Salir: borra la sesion y vuelve al login
+    protected void btnSalir_Click(object sender, EventArgs e)
+    {
+        Session["id"] = null;
+        Session["nombre"] = null;
+        Response.Redirect("Default.aspx");
     }
 }
 

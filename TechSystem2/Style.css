@@ -200,6 +200,18 @@ table.gridview a:hover {
     background-color: #21262d;
 }
 
+/* Los botones de acciones (Seleccionar / Eliminar) se quedan en una sola linea.
+   Sin esto, cuando el grid tiene muchas columnas, la columna de acciones se
+   aprieta y los botones se parten en dos lineas. */
+table.gridview td:last-child {
+    white-space: nowrap;
+}
+
+/* contenedor de los botones de acciones del grid */
+table.gridview .acciones {
+    white-space: nowrap;
+}
+
 /* --- Panel de confirmacion para eliminar --- */
 .panel-confirmacion {
     background-color: #21262d;
