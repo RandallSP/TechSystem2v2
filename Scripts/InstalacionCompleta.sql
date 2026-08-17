@@ -9,7 +9,7 @@
 --
 -- COMO USARLO:
 -- 1. Abra SQL Server Management Studio (SSMS) y conectese a
---    DESKTOP-P6SNJH4\SQLEXPRESS
+--    DESKTOP-P6SNJH4\SQLEXPRESS O su instancia por defecto
 -- 2. Ejecute este script completo.
 --
 -- USUARIO DE PRUEBA: randall@uhispano.ac.cr   Clave: 123
